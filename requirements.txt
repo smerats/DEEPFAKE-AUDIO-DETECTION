@@ -1,0 +1,8 @@
+Flask
+torch
+librosa
+numpy
+Werkzeug
+gunicorn
+soundfile
+scipy
