@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AudioGuard - Upload / Record</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif;}
+body{height:100vh;display:flex;justify-content:center;align-items:center;background:linear-gradient(135deg,#6C63FF,#3F3D56);}
+.card{background:#fff;border-radius:12px;box-shadow:0 12px 25px rgba(0,0,0,0.2);width:450px;padding:50px 30px;text-align:center;transition:0.3s;}
+.card:hover{transform:translateY(-5px);}
+.logo{font-size:32px;font-weight:bold;color:#6C63FF;margin-bottom:25px;}
+h2{color:#333;margin-bottom:30px;}
+.button{padding:12px 25px;border:none;border-radius:8px;background:#6C63FF;color:#fff;font-size:16px;font-weight:500;cursor:pointer;margin:10px;transition:0.3s;}
+.button:hover{background:#5752d1;}
+input[type="file"]{margin:15px 0;width:100%;}
+audio{margin-top:20px;width:100%;border-radius:8px;}
+</style>
+</head>
+<body>
+
+<div class="card">
+    <div class="logo">AudioGuard</div>
+    <h2>Upload or Record Audio</h2>
+
+    <!-- Upload -->
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="audioFile" accept=".wav,.mp3" required>
+        <br>
+        <button type="submit" class="button">Upload & Detect</button>
+    </form>
+
+    <hr style="margin:25px 0;border:0;border-top:1px solid #ccc;">
+
+    <!-- Record -->
+    <h3>Or Record Audio</h3>
+    <button class="button" onclick="startRecording()">Start Recording</button>
+    <button class="button" onclick="stopRecording()">Stop Recording</button>
+    <audio id="audioPlayback" controls></audio>
+</div>
+
+<script>
+let mediaRecorder, audioChunks;
+function startRecording(){
+    navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+        mediaRecorder=new MediaRecorder(stream);
+        audioChunks=[];
+        mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
+        mediaRecorder.start();
+    });
+}
+function stopRecording(){
+    mediaRecorder.stop();
+    mediaRecorder.onstop=()=>{
+        const audioBlob=new Blob(audioChunks);
+        const formData=new FormData();
+        formData.append("audioBlob", audioBlob, "recorded_audio.wav");
+        fetch("/record",{method:"POST",body:formData})
+            .then(()=> window.location.href="/result?detected=real");
+        document.getElementById('audioPlayback').src=URL.createObjectURL(audioBlob);
+    }
+}
+</script>
+
+</body>
+</html>

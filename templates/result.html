@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AudioGuard - Result</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif;}
+body{height:100vh;display:flex;justify-content:center;align-items:center;background:linear-gradient(135deg,#6C63FF,#3F3D56);}
+.card{background:#fff;border-radius:12px;box-shadow:0 12px 25px rgba(0,0,0,0.2);width:400px;padding:50px 30px;text-align:center;transition:0.3s;}
+.card:hover{transform:translateY(-5px);}
+.logo{font-size:32px;font-weight:bold;color:#6C63FF;margin-bottom:25px;}
+h2{color:#333;margin-bottom:30px;}
+.result-box{padding:20px;border-radius:12px;font-size:18px;font-weight:500;color:#fff;width:90%;margin:auto;}
+.real{background:#28a745;}  /* green for real */
+.fake{background:#dc3545;}  /* red for fake */
+.button{margin-top:20px;padding:12px 20px;border:none;border-radius:8px;background:#6C63FF;color:#fff;font-size:16px;font-weight:500;cursor:pointer;transition:0.3s;}
+.button:hover{background:#5752d1;}
+</style>
+</head>
+<body>
+
+<div class="card">
+    <div class="logo">AudioGuard</div>
+    <h2>Detection Result</h2>
+
+    <!-- Display result dynamically -->
+    <div class="result-box {% if detected=='fake' %}fake{% else %}real{% endif %}">
+        {{ detected.capitalize() }} Audio Detected
+        <br>
+        Confidence: {{ confidence }}%
+    </div>
+
+    <button class="button" onclick="window.location.href='/upload'">Back</button>
+</div>
+
+</body>
+</html>

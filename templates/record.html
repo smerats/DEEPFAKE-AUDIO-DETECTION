@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Record Audio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='upload.css') }}">
+</head>
+
+<body>
+
+<div class="box">
+
+    <h2>Record Audio</h2>
+
+    <p>Click Start → Speak → Stop → Upload</p>
+
+    <button id="startBtn">Start Recording</button>
+    <button id="stopBtn" disabled>Stop</button>
+
+    <br><br>
+
+    <audio id="audioPlayer" controls></audio>
+
+    <br><br>
+
+    <button id="uploadBtn" disabled class="detect">
+        Upload & Detect
+    </button>
+
+</div>
+
+<script>
+
+let mediaRecorder;
+let audioChunks = [];
+let audioBlob;
+
+// Start recording
+document.getElementById("startBtn").onclick = async () => {
+
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    mediaRecorder = new MediaRecorder(stream);
+
+    mediaRecorder.start();
+
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = e => {
+        audioChunks.push(e.data);
+    };
+
+    document.getElementById("startBtn").disabled = true;
+    document.getElementById("stopBtn").disabled = false;
+};
+
+
+// Stop recording
+document.getElementById("stopBtn").onclick = () => {
+
+    mediaRecorder.stop();
+
+    mediaRecorder.onstop = () => {
+
+        audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+
+        const audioURL = URL.createObjectURL(audioBlob);
+
+        document.getElementById("audioPlayer").src = audioURL;
+
+        document.getElementById("uploadBtn").disabled = false;
+    };
+
+    document.getElementById("startBtn").disabled = false;
+    document.getElementById("stopBtn").disabled = true;
+};
+
+
+// Upload
+document.getElementById("uploadBtn").onclick = async () => {
+
+    const formData = new FormData();
+
+    formData.append("audio", audioBlob, "recorded.wav");
+
+    const response = await fetch("/predict", {
+        method: "POST",
+        body: formData
+    });
+
+    const html = await response.text();
+
+    document.body.innerHTML = html;
+};
+
+</script>
+
+</body>
+</html>
